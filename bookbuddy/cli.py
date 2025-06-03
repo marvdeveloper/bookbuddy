@@ -50,6 +50,44 @@ def list_books():
         click.echo("❌ No books found.")
         return
     for book in books:
+        borrower = f" (Borrowed by User {book.borrower_id})" if book.borrower_id else ""
+        click.echo(f"{book.id}. {book.title} by {book.author}{borrower}")
+
+# --- BORROWING COMMANDS ---
+
+@cli.command()
+@click.argument("book_id", type=int)
+@click.argument("user_id", type=int)
+def borrow_book(book_id, user_id):
+    """Borrow a book for a user."""
+    session = get_session()
+    book = crud.borrow_book(session, book_id, user_id)
+    if not book:
+        click.echo(f"❌ Book or user not found.")
+        return
+    click.echo(f"✅ Book '{book.title}' borrowed by User {user_id}.")
+
+@cli.command()
+@click.argument("book_id", type=int)
+def return_book(book_id):
+    """Return a borrowed book."""
+    session = get_session()
+    success = crud.return_book(session, book_id)
+    if not success:
+        click.echo(f"❌ Book with ID {book_id} not found.")
+        return
+    click.echo(f"✅ Book ID {book_id} returned successfully.")
+
+@cli.command()
+@click.argument("user_id", type=int)
+def list_borrowed(user_id):
+    """List all books borrowed by a user."""
+    session = get_session()
+    books = crud.get_borrowed_books_by_user(session, user_id)
+    if not books:
+        click.echo(f"❌ No borrowed books found for User {user_id}.")
+        return
+    for book in books:
         click.echo(f"{book.id}. {book.title} by {book.author}")
 
 # --- REVIEW COMMANDS ---
