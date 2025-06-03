@@ -1,6 +1,7 @@
 import click
-from .db import init_db, get_session
+from .db import get_session
 from . import crud
+from .models import User, Book
 
 @click.group()
 def cli():
@@ -60,7 +61,22 @@ def list_books():
 @click.argument("rating", type=int)
 def add_review(user_id, book_id, content, rating):
     """Add a review for a book."""
+    if rating < 1 or rating > 5:
+        click.echo("❌ Rating must be between 1 and 5.")
+        return
+
     session = get_session()
+    user = session.query(User).get(user_id)
+    book = session.query(Book).get(book_id)
+
+    if not user:
+        click.echo(f"❌ User with ID {user_id} does not exist.")
+        return
+
+    if not book:
+        click.echo(f"❌ Book with ID {book_id} does not exist.")
+        return
+
     review = crud.create_review(session, user_id, book_id, content, rating)
     click.echo(f"✅ Review added by User {user_id} for Book {book_id} (Rating: {rating}/5)")
 
