@@ -8,6 +8,7 @@ def create_user(session: Session, name: str, email: str) -> User:
     user = User(name=name, email=email)
     session.add(user)
     session.flush()  # flush so user.id is available without committing
+    session.commit()  # commit to persist changes
     return user
 
 def get_all_users(session: Session) -> List[User]:
@@ -28,6 +29,7 @@ def update_user(session: Session, user_id: int, name: Optional[str] = None, emai
     if email:
         user.email = email
     session.flush()
+    session.commit()
     return user
 
 def delete_user(session: Session, user_id: int) -> bool:
@@ -35,6 +37,7 @@ def delete_user(session: Session, user_id: int) -> bool:
     if user:
         session.delete(user)
         session.flush()
+        session.commit()
         return True
     return False
 
@@ -44,6 +47,7 @@ def create_book(session: Session, title: str, author: str) -> Book:
     book = Book(title=title, author=author)
     session.add(book)
     session.flush()
+    session.commit()
     return book
 
 def get_all_books(session: Session) -> List[Book]:
@@ -64,6 +68,7 @@ def update_book(session: Session, book_id: int, title: Optional[str] = None, aut
     if author:
         book.author = author
     session.flush()
+    session.commit()
     return book
 
 def delete_book(session: Session, book_id: int) -> bool:
@@ -71,6 +76,7 @@ def delete_book(session: Session, book_id: int) -> bool:
     if book:
         session.delete(book)
         session.flush()
+        session.commit()
         return True
     return False
 
@@ -80,6 +86,7 @@ def create_review(session: Session, user_id: int, book_id: int, content: str, ra
     review = Review(user_id=user_id, book_id=book_id, content=content, rating=rating)
     session.add(review)
     session.flush()
+    session.commit()
     return review
 
 def get_reviews_by_user(session: Session, user_id: int) -> List[Review]:
@@ -100,6 +107,7 @@ def update_review(session: Session, review_id: int, content: Optional[str] = Non
     if rating is not None:
         review.rating = rating
     session.flush()
+    session.commit()
     return review
 
 def delete_review(session: Session, review_id: int) -> bool:
@@ -107,5 +115,6 @@ def delete_review(session: Session, review_id: int) -> bool:
     if review:
         session.delete(review)
         session.flush()
+        session.commit()
         return True
     return False
