@@ -10,6 +10,7 @@ class User(Base):
     email = Column(String, unique=True, nullable=False)
 
     reviews = relationship("Review", back_populates="user", cascade="all, delete-orphan")
+    borrowed_books = relationship("Book", back_populates="borrower", cascade="all")  # New relationship
 
     def __repr__(self):
         return f"<User(id={self.id}, name='{self.name}', email='{self.email}')>"
@@ -20,6 +21,9 @@ class Book(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String, nullable=False)
     author = Column(String, nullable=False)
+
+    borrower_id = Column(Integer, ForeignKey('users.id'), nullable=True)  # Foreign key for borrower (nullable if not borrowed)
+    borrower = relationship("User", back_populates="borrowed_books")    # New backref
 
     reviews = relationship("Review", back_populates="book", cascade="all, delete-orphan")
 
