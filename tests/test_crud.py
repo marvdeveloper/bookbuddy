@@ -1,4 +1,5 @@
 import pytest
+import time
 from bookbuddy.db import get_session, init_db
 from bookbuddy import crud
 from bookbuddy.models import User, Book, Review
@@ -15,14 +16,19 @@ def session():
     except StopIteration:
         pass
 
+def unique_email(base="testuser"):
+    # Generate a unique email using current time
+    return f"{base}_{int(time.time() * 1000)}@example.com"
+
 def test_create_and_get_user(session):
-    user = crud.create_user(session, "Test User", "testuser@example.com")
+    email = unique_email()
+    user = crud.create_user(session, "Test User", email)
     session.commit()
     assert user.id is not None
     assert user.name == "Test User"
-    assert user.email == "testuser@example.com"
+    assert user.email == email
 
-    fetched_user = crud.find_user_by_email(session, "testuser@example.com")
+    fetched_user = crud.find_user_by_email(session, email)
     assert fetched_user is not None
     assert fetched_user.id == user.id
 
@@ -44,7 +50,8 @@ def test_create_and_get_book(session):
     session.commit()
 
 def test_create_and_get_review(session):
-    user = crud.create_user(session, "Review User", "reviewuser@example.com")
+    user_email = unique_email("reviewuser")
+    user = crud.create_user(session, "Review User", user_email)
     book = crud.create_book(session, "Review Book", "Review Author")
     session.commit()
 
