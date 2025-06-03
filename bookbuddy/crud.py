@@ -80,6 +80,30 @@ def delete_book(session: Session, book_id: int) -> bool:
         return True
     return False
 
+# ---- Borrowing functionality ----
+
+def borrow_book(session: Session, book_id: int, user_id: int) -> Optional[Book]:
+    book = get_book_by_id(session, book_id)
+    user = get_user_by_id(session, user_id)
+    if not book or not user:
+        return None
+    book.borrower_id = user.id
+    session.flush()
+    session.commit()
+    return book
+
+def return_book(session: Session, book_id: int) -> bool:
+    book = get_book_by_id(session, book_id)
+    if not book:
+        return False
+    book.borrower_id = None
+    session.flush()
+    session.commit()
+    return True
+
+def get_borrowed_books_by_user(session: Session, user_id: int) -> List[Book]:
+    return session.query(Book).filter(Book.borrower_id == user_id).all()
+
 # ---- Review CRUD ----
 
 def create_review(session: Session, user_id: int, book_id: int, content: str, rating: int) -> Review:
